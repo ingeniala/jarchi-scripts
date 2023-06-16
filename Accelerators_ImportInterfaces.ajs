@@ -1,0 +1,103 @@
+/******************************************************************************************************* 
+ * Author: Ingenia
+ * Date last change: 14/06/2023
+ * This script takes a CSV file as input separated by ",", with the information about application interfaces (composition and service relation bewtween application components) and create the components and relationships in a given model.
+ * The fields of the CSV file are:
+ * - app-name: Name of the integration application (p.e a Service Bus)
+ * - name: Name of the interface exposed by the integration application
+ * - name-backend: Name of interface exposed by the  backend application (p.e. a CRM or ERP)
+ * - consumer: Application that consumes the integration exposed by the itnegration app
+ * - provider: Application that expose the functionaning interface (p.e. a CRM or ERP)
+ * Following, an example of the application component structure:
+ *  [Provider]--(exposes)-->[name-backend]--(serve)-->[app-name]--(exposes)-->[name]--(serve)-->[Consumer]
+********************************************************************************************************/
+
+var file-path = window.promptOpenFile({ title: "Open CSV File", filterExtensions: ["*.csv", "model.csv"] });
+console.log(file-path);
+
+if(file-path){
+  var buff-reader = Java.type("java.io.BufferedReader");
+  var FileReader = Java.type("java.io.FileReader");
+  var the-CSV-file = new BuffReader(new FileReader(file-path));
+  var folders = {};
+
+  var the-CSV ="";
+  console.log("> Please Wait...");
+
+  var the-line=the-CSV-file.readLine();
+  
+  var cant=0;
+  while(the-line != null) {
+    if(the-line!=",,,,,,,,,,,,,,,,,"){
+      the-CSV+=the-line;
+      var values = the-line.split(",");
+      try{
+        var cat = values[1];
+        var name=values[2];
+        var name-backend=values[3];
+        var consumer = values[4];
+        var provider = values[5];
+        var integration;
+        var backend;
+        var backend-int;
+
+        if(cat != "Integration Group"){
+          var tec-object = $("")
+
+          var int-object = $("application-component").filter("." + cat).first();
+
+          folder = folders["Application."+cat];
+
+          if(!folder){
+            folder = $("folder.Application").first();
+            folder = folder.createFolder(cat);
+            folders["Application."+cat] = folder;
+          }
+          if(!int-object){
+            int-object = model.createElement("application-component", cat, folder);
+          }
+          integration = model.createElement("application-interface", name, folder);
+          model.createRelationship("composition-relationship", "", int-object, integration);
+
+          folder = folders["Application."+consumer];
+          int-consumer = $("application-component").filter("." + consumer).first();
+          if(!folder){
+            folder = $("folder.Application").first();
+            folder = folder.createFolder(consumer);
+            folders["Application."+consumer] = folder;
+          }
+          if(!int-consumer){
+            int-consumer = model.createElement("application-component", consumer, folder);
+          }
+          model.createRelationship("serving-relationship", "", integration, int-consumer);
+
+          folder = folders["Application."+provider];
+          backend = $("application-component").filter("." + provider).first();
+          if(!folder){
+            folder = $("folder.Application").first();
+            folder = folder.createFolder(provider);
+            folders["Application."+provider] = folder;
+          }
+
+          if(name-backend == ""){
+            name-backend = "no-definido";
+          }
+
+          if(!backend){
+            backend = model.createElement("application-component", provider, folder);
+          }
+          backend-int = model.createElement("application-interface", name-backend, folder);
+          model.createRelationship("composition-relationship", "", backend, backend-int);
+          model.createRelationship("serving-relationship", "", backend-int, int-object);
+
+          cant++;
+        }
+      }catch(e){
+        console.log(e);
+      }
+    }
+    the-line = the-CSV-file.readLine();
+  }
+  the-CSV-file.close();
+  console.log("> File Loaded with elements #: " + cant);
+}

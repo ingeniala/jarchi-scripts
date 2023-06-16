@@ -1,0 +1,11 @@
+/******************************************************************************************************* 
+ * Author: Ingenia
+ * Date last change: 15/06/2023
+ * This script remove a propertie from a bunch of selected elements
+********************************************************************************************************/
+
+var prop-name = window.prompt("Which property do you want to remove (leave empty to cancel)?", "");
+if (prop-name) {
+	$(selection).removeProp(prop-name);
+}
+

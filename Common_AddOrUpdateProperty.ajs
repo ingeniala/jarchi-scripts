@@ -1,0 +1,15 @@
+﻿/******************************************************************************************************* 
+ * Author: Ingenia
+ * Date last change: 15/06/2023
+ * This script add or update in bulk properties on selected elements.
+********************************************************************************************************/
+
+var prop-name = window.prompt("Which property do you want to add or update (leave empty to cancel)?", "");
+if (prop-name) {
+	var prop-value = window.prompt("Which value do you want to set for '"+prop-name+"' (leave empty to cancel)?", "");
+	if (prop-value) {
+		$(selection).prop(prop-name, prop-value);
+	}
+}
+
+console.log("AddOrUpdateProperty Script");

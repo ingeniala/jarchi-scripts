@@ -1,0 +1,73 @@
+/*
+Dada una vista con un viewpoint "Application Cooperation" calcula la complejidad de la arquitectura representada, indicada por:
+- Complejidad ciclomática. Si el indicador es > 10, se considera una arquitectura compleja.
+- Fan in y Fan out index. Cuanto mas cerca de 1, mejor. Mayor de 2, es complejidad alta.
+Los resultados los deja en la consola, a nivel general.
+
+También pinta los componentes según su nivel de hot spot (con muchas conexiones):
+- azul cold spot, cuando ((fan_in+fan_out)/vertices) < 0.1
+- orange warm spot, cuando ((fan_in+fan_out)/vertices) > 0.1 y < 0.4
+- rojo hot spot, cuando ((fan_in+fan_out)/vertices) > 0.4
+*/
+
+var red = "#F70B28";
+var orange = "#FF6B00";
+var blue = "#695EFF";
+var black = "#343341";
+var gray = "#c2c1c6";
+var white = "#eaeaec";
+
+current_view = $(selection).first();
+
+if(current_view.type !="archimate-diagram-model"){
+  window.alert("Debe estar abierto el diagrama");
+}else{
+  edges = 0;
+  vertices = 0;
+  fan_in = 0;
+  fan_out = 0;
+  $(current_view).children().forEach(function(element){
+    if(element.type=="diagram-model-group"){ //Si es un grupo, iteramos internamente
+      $(element).children().forEach(function(child){
+        vertices = vertices + 1;
+        fan_in = fan_in + $(child).inRels().size();
+        fan_out = fan_out + $(child).outRels().size();
+      });
+    }else{
+      if(element.type=="serving-relationship"){ //Si es un relación, lo sumamos
+        edges = edges + 1;
+      }
+    }
+  });
+
+  $(current_view).children().forEach(function(element){
+    if(element.type=="diagram-model-group"){ //Si es un grupo, iteramos internamente
+      $(element).children().forEach(function(child){
+        fan_in = $(child).inRels().size();
+        fan_out = $(child).outRels().size();
+        spot_temperature = (fan_in+fan_out)/vertices;
+        color = red;
+        if(spot_temperature <= 0.1){ //cold spot
+          color = blue;
+        }else if(spot_temperature > 0.1 && spot_temperature <= 0.4){
+          color = orange;
+        }
+        child.fillColor = color;
+        child.fontColor = white;
+      });
+    }
+  });
+
+  cyc_complexity = (edges - vertices + 1);
+  fan_complexity = ((fan_in + fan_out)/vertices);
+
+  console.log("Complejidad Arquitectura");
+  console.log("------------------------");
+  console.log("edges: " + edges);
+  console.log("vertices: " + vertices);
+  console.log("fan_in: " + fan_in);
+  console.log("fan_out: " + fan_out);
+  console.log("Complejidad ciclomática: " + cyc_complexity);
+  console.log("Fan complexity: " + fan_complexity);
+  console.log("------------------------")
+}

@@ -1,0 +1,82 @@
+/******************************************************************************************************* 
+ * Author: Ingenia
+ * Date last change: 15/06/2023
+ * This script generates a heatmap on a Business Process Cooperation View, based on the application components that rationalize the base Business Functions (without internal composition).
+ * Pre-conditions
+ * 1. Create a Process Cooperation View, with Business Functions representing each functional aspects of the architecture
+ * 2. Each Business function must include two differente properties:
+ *   2.1. "enabled": which values are "true" or "false". This script applies to Business function with this propertie in "true"
+ *   2.2. "type": with value "reference-model"
+ * 3. To define the coverage of each business function, it is required for each Business function. In this view it is required to relate each application component that supports the business function, with a realization relationship between the applicaion component and the business function. The level of coverage is indicated with a propertie called "coverage" with values "full" or "partial"
+ * The scripts paint the Business function of the model following the next logic:
+ * 1. Green, when a business function is covered in a full way
+ * 2. Orange, when a business function is covered in a partial way
+ * 3. Black, when a business function is not covered by any application
+ * 4. Grey, when a business function is marked as "enabled" = "false"
+********************************************************************************************************/
+
+var green = "#45D7D3";
+var orange = "#FF6B00";
+var black = "#343341";
+var gray = "#c2c1c6";
+var white = "#FFFFFF";
+
+var green-points = 1;
+var orange-points = 0.75;
+var black-points = 0;
+
+var points = 0;
+var prop_name = "coverage";
+
+try{
+  $("business-function").forEach(function(fun){
+    coverage(fun);
+  });
+}catch(e){
+  console.log(e);
+  window.alert("It is needed an open view");
+}
+
+
+function coverage(base-element){
+	if($(base-element).prop("type") == "reference-model" && $(base-element).outRels().filter("composition-relationship").size()==0){
+		getCoverage(base-element);
+	}
+}
+
+function getCoverage(element){
+	enabled = $(element).prop("enabled");
+  
+	if(enabled == "true"){
+    full = 0;
+    partial = 0;
+		$(element).inRels().filter("realization-relationship").forEach(function(rel){
+      switch(rel.prop(prop_name)){
+        case "full":
+          full++;
+          break;
+        case "partial":
+          partial++;
+          break;
+        default:
+          break;
+      }
+    });
+
+    if(full+partial == 0){
+      color = black; 
+      font_color = white;
+    }else if(full >= partial){
+      color = green;
+      font_color = black;
+    }else{
+      color = orange;
+      font_color = white;
+    }
+    $(element).objectRefs().attr("fillColor", color);
+    $(element).objectRefs().attr("fontColor", font_color);
+	}else{
+		$(element).objectRefs().attr("fillColor", gray);
+    $(element).objectRefs().attr("fontColor", black);
+	}
+}

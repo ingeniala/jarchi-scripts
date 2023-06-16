@@ -1,0 +1,41 @@
+/******************************************************************************************************* 
+ * Author: Ingenia
+ * Date last change: 15/06/2023
+ * This script reset the background colors of the elements to a default value
+********************************************************************************************************/
+
+var business = "#FAEBA6";
+var application = "#97CCEC";
+var technology = "#82D8D5";
+var motivation = "#d9bde3";
+var strategy = "#D9BDE3";
+var implementation = "#fabdba";
+var plateau = "#82d8d5";
+var location = "#FBB875";
+var other = "#FFFFFF";
+
+$("element").forEach(function(element){
+  if(element.type == "business-actor" || element.type == "business-role" || element.type == "business-collaboration" || element.type == "business-interface" || element.type == "business-process" || element.type == "business-function" || element.type == "business-interaction" || element.type == "business-event" || element.type == "business-service" || element.type == "business-object" || element.type == "contract" || element.type =="representation" || element.type == "product"){
+    color = business;
+  }else if(element.type == "application-component" || element.type == "application-collaboration" || element.type == "application-interface" || element.type == "application-function" || element.type == "application-process" || element.type == "application-interaction" || element.type == "application-event" || element.type == "application-service" || element.type == "data-object"){
+    color = application;
+  }else if(element.type == "resource" || element.type == "capability" || element.type == "course-of-action" || element.type == "value-stream"){
+    color = strategy;
+  }else if(element.type == "technology-collaboration" || element.type == "technology-interface" || element.type == "technology-function" || element.type == "technology-process" || element.type == "technology-interaction" || element.type == "technology-event" || element.type == "technology-service" || element.type == "node" || element.type == "device" || element.type == "system-software" || element.type == "path" || element.type == "communication-network" || element.type == "artifact"){
+    color = technology;
+  }else if(element.type == "equipment" || element.type == "facility" || element.type == "distribution-network" || element.type == "material"){
+    color = technology;
+  }else if(element.type == "stakeholder" || element.type == "driver" || element.type == "assessment" || element.type == "goal" || element.type =="outcome" || element.type == "principle" || element.type == "requirement" || element.type == "constraint" || element.type == "meaning" || element.type == "value"){
+    color = motivation;
+  }else if(element.type == "work-package" || element.type == "deliverable" || element.type == "implementation-event"){
+    color = implementation;
+  }else if(element.type == "plateau" || element.type == "gap"){
+    color = plateau;
+  }else if(element.type == "location"){
+    color = location;
+  }else{
+    color = other;
+  }
+  $(element).objectRefs().attr("fillColor", color);
+  $(element).objectRefs().attr("fontColor", "#343341");
+});
